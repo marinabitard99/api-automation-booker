@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import static net.serenitybdd.core.Serenity.sessionVariableCalled;
+import static net.serenitybdd.core.Serenity.setSessionVariable;
 
 public class BookerSteps extends BaseSteps {
   private final static String _AUTH_ = "/auth/";
@@ -40,5 +41,42 @@ public class BookerSteps extends BaseSteps {
   public static void validateAmountOfBookingIds(int amount){
     Response response = Serenity.sessionVariableCalled(RESPONSE);
     Assert.assertEquals("Amount of Booking Ids", amount, response.jsonPath().getList("bookingid").size());
+  }
+
+  @Step
+  public static void createBooking(DataTable dataTable) throws IOException {
+    sendRequestWithBodyJson(POST, _BOOKING_, createBody(dataTable));
+    Response response = Serenity.sessionVariableCalled(RESPONSE);
+    Integer str = response.jsonPath().get("bookingid");
+    setSessionVariable("bookingid").to(str);
+  }
+
+  @Step
+  public static void getBooking(){
+    sendRequest(GET, _BOOKING_ + sessionVariableCalled("bookingid"));
+  }
+
+  @Step
+  public static void updateBooking(DataTable dataTable) throws IOException {
+    sendRequestWithBodyJson(
+            PUT,
+            _BOOKING_ + sessionVariableCalled("bookingid"),
+            createBody(dataTable));
+  }
+
+  @Step
+  public static void partialUpdateBooking(DataTable dataTable) throws IOException {
+    sendRequestWithBodyJson(
+            PATCH,
+            _BOOKING_ + sessionVariableCalled("bookingid"),
+            createBody(dataTable));
+  }
+
+  @Step
+  public static void deleteBooking() throws IOException {
+    sendRequestWithBodyJson(
+            DELETE,
+            _BOOKING_ + sessionVariableCalled("bookingid"),
+            "{}");
   }
 }
